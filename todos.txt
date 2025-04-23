@@ -1,0 +1,9 @@
+- making a menu to account for changing what the algo needs to do
+    - this iwll be through argparse most likely to assign command line flags for each question
+
+- when entering the algo, ask whether or not we are the ones making the first bet
+
+- odds are we are going to represent poker hands as card classes stored in vectors for each hand
+- alternatively there are already created pokerhand classes available to give a starting point
+
+- hard code so that anything above the rank of 3 of a kind will not result in a fold
