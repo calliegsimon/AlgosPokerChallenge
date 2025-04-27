@@ -11,15 +11,17 @@ from itertools import combinations
 # referenced from: https://www.kaggle.com/datasets/camillahorne/poker-hands?select=ranked_poker_hands.csv
 # ^ they also have all the possible permutations
 handRanks = {
-    1 : "Royal Flush",
-    2 : "Straight Flush",
-    3 : "Four of a Kind",
-    4 : "Full House",
-    5 : "Straight",
-    6 : "Three of a Kind",
-    7 : "Two Pair",
-    8: "Pair",
-    9: "High Card"
+    #EHS needs handranks sorted weakest to strongest, ie strongest rank has highest val
+    9 : "Royal Flush",
+    8 : "Straight Flush",
+    7 : "Four of a Kind",
+    6 : "Full House",
+    5 :"Flush",
+    4 : "Straight",
+    3 : "Three of a Kind",
+    2 : "Two Pair",
+    1: "Pair",
+    0: "High Card"
 }
 
 # we are going to assign card ranks to values for ease of comparison.
@@ -98,8 +100,50 @@ def type_hand(ourHand):
         else:
             straight = True
 
+    # checking for royal flush
+    if flush and straight and max(sortedCardRanks) == 14:
+        return 9
+    
+    # check for straight flush
+    if flush and straight:
+        return 8
+    
+    # checking four of a kid
+    if 4 in rankCnt.values():
+        return 7
+    
+    #checking for full house 
+    if 3 in rankCnt.values() and 2 in rankCnt.values():
+        return 6
+    
+    # checking for just a normal flushj
+    if flush: 
+        return 5
+    
+    if straight:
+        return 4
+    
+    if 3 in rankCnt.values():
+        return 3 
+    
+    #checking for a two pair 
+    pair = list(rankCnt.values()).count(2)
+    if pair == 2:
+        return 2
+    
+    if pair == 1:
+        return 1
 
-def rank_hand()
+    # returning high card as the else
+    return 0
+
+def highest_possibleHand(ourCards, tableCards):
+    """ Evaluating the best possible hand out of the combinations of allCards """
+    allCards = ourCards + tableCards
+    bestPoss = 0
+
+    # going through all possible combos of all 
+
 
 
 def EHS(curr_hs, n_pot,p_pot):
