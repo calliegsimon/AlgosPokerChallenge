@@ -49,4 +49,44 @@ def InitBet():
 
 
 def main(): 
-    "main menu logic here"
+    print("Game Stage Menu\n")
+    print("0: Game Start\n")
+    print("1: The Flop\n")
+    print("2: The Turn\n")
+    print("3: The River\n")
+    print("4: Game End\n")
+    
+    opt_str = input("Enter the number that corresponds to the game stage you are in: ")
+    opt = int(opt_str)
+
+    match opt:
+        case 0:
+            # do stuff
+            main()
+        case 1:
+            # do stuff
+            main()
+        case 2:
+            # do stuff
+            main()
+        case 3:
+            # do stuff
+            main()
+        case 4: 
+            print("No one folded. Time for everyone to reveal their hands.\n")
+            print("Ranking of hands from best to worst:\n")
+            print("- Royal Flush\n")
+            print("- Straight Flush\n")
+            print("- Four of a Kind\n")
+            print("- Full House\n")
+            print("- Flush\n")
+            print("- Straight\n")
+            print("- Three of a Kind\n")
+            print("- Two Pair\n")
+            print("- Pair\n")
+            print("- High Card\n")
+        case default:
+            print("Invalid Menu Option\n")
+            main()
+            
+            
