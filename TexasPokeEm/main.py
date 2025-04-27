@@ -2,6 +2,8 @@
 - Switch (match) case to """
 
 import handstrength
+import sys 
+import random 
 
 """ when entering in input cards add output lines for how to enter cards.
 
@@ -15,14 +17,36 @@ import handstrength
     "clubs = c\n" 
     "For example 4 of hearts is 4h.\n")"""
 
-""" Menu formatting: 
+#global variables that you can change if u want 
+roundNumber = 1
+betFirst = False
+numChips = 10 
 
-    print("Game Stage Menu\n")
-    print("0: Game Start\n")
-    print("1: The Flop\n")
-    print("2: The Turn\n")
-    print("3: The River\n")
-    print("4: Game End\n")
+def OppBet(dec):
+    global roundNumber #idk i havent done python in forever. 
 
-    opt_str = input("Enter the number that corresponds to the game stage you are in: ")
-    opt = int(opt_str) """
+    if dec == 0: 
+        print("opponent called! move to next round.")
+        roundNumber+=1
+
+    elif dec == 1: 
+        print("opponent raised!")
+        user_input = int(input("Enter opponent bet: "))
+        print("You entered:", user_input)
+
+    elif dec == 2: 
+        print("opponent folded, you win!")
+        sys.exit()
+
+def BetDecision(): 
+    "check for initial bet, do not run"
+    if(betFirst == True): 
+
+def InitBet(): 
+    " function that will tell us how much our bet should be at the beginning of each betting round "
+    if(betFirst == True): 
+
+
+
+def main(): 
+    "main menu logic here"
