@@ -7,4 +7,10 @@ import handstrength
 
     Here is the output to be displayed:
     
-    print("Enter your cards:\n")"""
+    print("Enter your cards!\n")
+    print("The value of a card is the first letter, followed by a lowercase suit letter.\n")
+    print("spades = s\n" 
+    "diamonds = d\n" 
+    "hearts = h\n" 
+    "clubs = c\n" 
+    "For example 4 of hearts is 4h.\n")"""
