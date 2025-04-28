@@ -139,10 +139,25 @@ def type_hand(ourHand):
 
 def highest_possibleHand(ourCards, tableCards):
     """ Evaluating the best possible hand out of the combinations of allCards """
+    # combining hole cards & table cards
     allCards = ourCards + tableCards
+    #bestPoss is the best possible rank found
     bestPoss = 0
 
-    # going through all possible combos of all 
+    # going through all possible combos of hands
+    allCombos = combinations(allCards, 5)
+
+    for com in allCombos:
+        handRank = type_hand(com) # getting the current card rank
+
+        #if the hand rank is better than the current bets possible
+        # update
+        if handRank > bestPoss:
+            bestPoss = handRank
+    
+    return bestPoss
+
+
 
 
 
@@ -165,7 +180,7 @@ def EHS(curr_hs, n_pot,p_pot):
 
     return ehs
 
-def hand_strength(ourCards, tableCards,oppCards): 
+def hand_strength(ourCards, tableCards, deck): 
     """ HS enumerates all possible opponent hand cards and counts the occurrneces where 
     ours is the strongest (+50 of cases where we are tied) 
     
@@ -181,12 +196,31 @@ def hand_strength(ourCards, tableCards,oppCards):
         else if(ourrank=opprank) tied += 1
         else /* < */ behind += 1
         }
-    handstrength = (ahead+tied/2)
+        handstrength = (ahead+tied/2)
      (ahead+tied+behind)
     return(handstrength)
     """
     ahead, behind, tied = 0
 
-    ourRank = rank_hand(ourCards, )
+    #type hand returns the 
+    ourRank = type_hand(ourCards, tableCards)
+
+    # consider all possible 2 card combos for our opponent
+    # memoization will FOR SURE be needed lmao unless we use the kaggle dataset
+    for opp in combinations(deck, 2):
+        oppRank = type_hand(opp)
+
+        if(ourRank>oppRank):
+            ahead += 1
+        elif(ourRank == oppRank):
+            tied += 1
+        else:
+            behind +=1
+    
+    handstrength = (ahead+tied / 2) / (ahead+tied+behind)
+
+    return handstrength
+    
+
 
 def hand_potential(ourCards, tableCards, oppCards):
