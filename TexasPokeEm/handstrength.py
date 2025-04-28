@@ -240,18 +240,32 @@ def hand_potential(ourCards, tableCards):
     #integer array HP[3][3] /* initialize to 0 */
     #integer array HPTotal[3] /* initialize to 0 */
 
-    #3x3 matrix: [currState][futureState]
-    # array indices:
-    # 0 - behind
-    # 1 - tied
-    # 2 - ahead
-    hp = []
+    """
+    Some notes on the hp matrice
+        3x3 matrix: [currState][futureState]
+       array indices:
+       0 - behind
+       1 - tied
+       2 - ahead
+       row - hand's current state
+       col - hand's future state
 
+       (i'm including notes cause if i didn't i honestly would forget how it works later)
+       """
+
+    hp = [
+        [0,0,0], # this would be curr: ahead
+        [0,0,0], # this would be curr: tied
+        [0,0,0], # this would be curr: behind
+    ]
+
+    ourRank = type_hand(ourCards, tableCards)
+
+    deckRemains = [cd for cd in deck if cd not in ourCards + tableCards]
+    # here we are making our deckRemains 
+    deckRemains = 
     #consider all possible two card comos of the remaining cards for the opponent
 
 
         #all possible board cards to come
 
-
-        
-    deckRemains = []
