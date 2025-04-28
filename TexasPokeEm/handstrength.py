@@ -224,3 +224,7 @@ def hand_strength(ourCards, tableCards, deck):
 
 
 def hand_potential(ourCards, tableCards, oppCards):
+    """potential for our hand to improve or deteroiate
+    should return p_pot & n_pot 
+    
+    """
