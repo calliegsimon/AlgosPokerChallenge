@@ -4,7 +4,7 @@ Notes:
 - handRanks = a dictionary of hand ranks for easy lookup
 - 
 """
-
+#https://docs.python.org/3/library/itertools.html
 from itertools import combinations
 
 #dictionary to store hand ranks needed for EHS
@@ -41,6 +41,12 @@ rankValues = {
     '3': 3,
     '2': 2
 }
+
+# here we are making our 
+ranks = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
+suits = ['h', 'd', 'c', 's']  # hearts, diamonds, clubs, spades
+
+deck = [rank + suit for rank in ranks for suit in suits]
 
 def type_hand(ourHand):
     """ this is a util function that will assign the hand type based on a string of hands.
@@ -223,8 +229,29 @@ def hand_strength(ourCards, tableCards, deck):
     
 
 
-def hand_potential(ourCards, tableCards, oppCards):
+def hand_potential(ourCards, tableCards):
     """potential for our hand to improve or deteroiate
     should return p_pot & n_pot 
-    
     """
+
+    # hand potential arrays 
+    # Hand potential array, each index repre- */
+    #ents ahead, tied, and behind. */
+    #integer array HP[3][3] /* initialize to 0 */
+    #integer array HPTotal[3] /* initialize to 0 */
+
+    #3x3 matrix: [currState][futureState]
+    # array indices:
+    # 0 - behind
+    # 1 - tied
+    # 2 - ahead
+    hp = []
+
+    #consider all possible two card comos of the remaining cards for the opponent
+
+
+        #all possible board cards to come
+
+
+        
+    deckRemains = []
