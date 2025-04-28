@@ -259,13 +259,55 @@ def hand_potential(ourCards, tableCards):
         [0,0,0], # this would be curr: behind
     ]
 
+    # reminder type hand is just ranking our hands
     ourRank = type_hand(ourCards, tableCards)
 
+    # remaining card excluding our hole cards and known table cards
     deckRemains = [cd for cd in deck if cd not in ourCards + tableCards]
-    # here we are making our deckRemains 
-    deckRemains = 
-    #consider all possible two card comos of the remaining cards for the opponent
+    #consider all possible two card combos of the remaining cards for the opponent
+    for opp in combinations(deckRemains, 2):
+        oppRank = type_hand(list(opp), tableCards)
 
+        if ourRank > oppRank:
+            curr = 2 # setting us to ahead
+        elif ourRank == oppRank:
+            curr = 1 # setting us to tied
+        else:
+            curr = 0
+        
+        # time to find all possible combos of the table cards (board cards in paper) to come
+        futureCards = [cd in cd in deckRemains if card not in opp]
 
-        #all possible board cards to come
+        for fu in combinations(futureCards, 5 - len(tableCards)):
+            futureBoard = tableCards + list(fu)
+
+            ourFutRank = type_hand(ourCards, futureBoard)
+            oppFutRank = type_hand(list(opp), futureBoard)
+
+            # assigning our possible future states
+            if ourFutRank > oppFutRank:
+                futureState = 2
+            elif ourFutRank == oppFutRank:
+                futureState = 1
+            else:
+                futureState = 0
+
+            hp[curr][futureState] += 1
+
+    # summing here
+    total_behind = sum(hp[0])
+    total_tied = sum(hp[1])
+    total_ahead = sum(hp[2])
+
+    #totalhp = total_behind + total_tied + total_ahead
+    
+    # i am gonna have to fix these tomorrow morning i have a gut feeling
+    # positive potentioanl ->
+    # p_pot were behind but moved ahead
+    # From paper:  Ppot = (HP[behind][ahead]+HP[behind][tied]/2 + HP[tied][ahead]/2) / (HPTotal[behind]+HPTotal[tied])
+    p_pot = (hp[0][2] + hp[0][1]/2 + hp[1][2]/2) / (total_behind+total_tied)
+    #negative pot
+    # n pt we were ahead but fell behind
+    # From paper once more: 
+    n_pot = (hp[2][0] + hp[2][1]/2 + hp[1][0]/2) / (total_ahead+total_tied)
 
