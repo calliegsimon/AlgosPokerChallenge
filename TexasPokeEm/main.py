@@ -45,6 +45,11 @@ def BetDecision():
 def InitBet(): 
     """ function that will tell us how much our bet should be at the beginning of each betting round """
     if(betFirst == True): 
+        """ always bet 1 when we bet first """
+        print("Bet 1 chip\n")
+    else:
+        """ always call when opponent bets first """
+        print("Call\n")
 
 
 
