@@ -20,7 +20,7 @@ import random
 #global variables that you can change if u want 
 roundNumber = 1
 betFirst = False
-numChips = 10 
+numChips = 100
 
 def OppBet(dec):
     global roundNumber #idk i havent done python in forever. 
@@ -68,7 +68,9 @@ def main():
     """ https://www.geeksforgeeks.org/switch-case-in-python-replacement/ """
     match opt:
         case 0:
-            # do stuff
+            # get number of chips from user
+            numChips = int(input("Enter the number of chips you have to start this round: "))
+            # get cards from user
             main()
         case 1:
             # do stuff
