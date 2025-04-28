@@ -39,17 +39,17 @@ def OppBet(dec):
         sys.exit()
 
 def BetDecision(): 
-    "check for initial bet, do not run"
+    """check for initial bet, do not run"""
     if(betFirst == True): 
 
 def InitBet(): 
-    " function that will tell us how much our bet should be at the beginning of each betting round "
+    """ function that will tell us how much our bet should be at the beginning of each betting round """
     if(betFirst == True): 
 
 
 
 def main(): 
-    " menu logic "
+    """ menu logic """
     print("Game Stage Menu\n")
     print("0: Game Start\n")
     print("1: The Flop\n")
@@ -60,7 +60,7 @@ def main():
     opt_str = input("Enter the number that corresponds to the game stage you are in: ")
     opt = int(opt_str)
 
-    " https://www.geeksforgeeks.org/switch-case-in-python-replacement/ "
+    """ https://www.geeksforgeeks.org/switch-case-in-python-replacement/ """
     match opt:
         case 0:
             # do stuff
