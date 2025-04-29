@@ -20,7 +20,9 @@ import random
 #global variables that you can change if u want 
 betFirst = False
 numChips = 100 # will need to update this when we call/raise
+oppChips = 100
 currentBet = 0 
+holeCards = ""
 # round number doesnt matter because the menu option entered does this for us
 
 def OppBet():
@@ -58,6 +60,37 @@ def OppBet():
 def BetDecision(): 
     """check for initial bet, do not run"""
     if(betFirst == True): 
+        print("stuff")
+
+
+    #AFTER decision made -- AMY 
+    print("Your Bet Options.. \n")
+    print("0: call\n")
+    print("1: raise\n")
+    print("2: fold\n")
+
+    userBet = int(input("enter what you want to do."))
+    print("You decided to:", userBet)
+
+    if userBet == 0: 
+        print("you called! the current bet is .. ", currentBet)
+        #move to next round 
+    elif userBet == 1: 
+        newBet = int(input("what are you raising to?"))
+        OppBet(A)
+        if A == 0: 
+            print("call")
+            #call 
+        elif A == 1:
+            print("raise") 
+            #raise 
+        elif A == 2: 
+            print("fold")
+            #fold 
+    elif userBet == 2: 
+        print("folded, end round")
+        sys.exit()
+        #end round, chips go to opponent (?)
 
 def InitBet(): 
     """ function that will tell us how much our bet should be at the beginning of each betting round """
@@ -71,8 +104,6 @@ def InitBet():
         numChips = numChips - currentBet
         print("Call\n")
 
-
-
 def main(): 
     """ menu logic """
     print("Game Stage Menu\n")
@@ -82,16 +113,16 @@ def main():
     print("3: The River\n")
     print("4: Game End\n")
     
-    opt_str = input("Enter the number that corresponds to the game stage you are in: ")
-    opt = int(opt_str)
+    opt = int(input("Enter the number that corresponds to the game stage you are in: "))
 
     """ https://www.geeksforgeeks.org/switch-case-in-python-replacement/ """
     match opt:
         case 0:
             # get number of chips from user
-            numChips = int(input("Enter the number of chips you have to start this round: "))
+            numChips = int(input("Enter the number of chips you have to start this game: "))
             # get cards from user
-
+            userCards = input("Enter your cards. Separate cards by comma & space.\n")
+            holeCards = tuple(userCards.split(", "))
             # who bets first?
             while 1:
                 print("First Better\n")
@@ -114,10 +145,11 @@ def main():
             main()
             
         case 1:
-            revCard = input("Enter revealed cards: ")
+            revCard_flop = input("Enter 3 revealed cards. Separate cards by comma & space.\n")
+            flopCards = tuple(revCard_flop.split(", "))
             # if you bet first, will do so for entire game
             if betFirst: #if true
-                BetDecision()
+                InitBet()
                 OppBet()
             else: #if false 
                 # inputting opponent's moves now happens in OppBet()
@@ -126,9 +158,13 @@ def main():
             main()
             
         case 2:
+            revCard_turn = input("Enter 1 revealed card. Separate cards by comma & space.\n")
+            turnCards = tuple(revCard_turn.split(", "))
             # do stuff
             main()
         case 3:
+            revCard_river = input("Enter 1 revealed card. Separate cards by comma & space.\n")
+            riverCards = tuple(revCard_river.split(", "))
             # do stuff
             main()
         case 4: 
@@ -144,8 +180,11 @@ def main():
             print("- Two Pair\n")
             print("- Pair\n")
             print("- High Card\n")
+            sys.exit()
         case default:
             print("Invalid Menu Option\n")
             main()
             
-            
+
+# running program
+main()
