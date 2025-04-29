@@ -104,9 +104,24 @@ def main():
                 print("Invalid response. Try again.\n")
             }
             main()
+            
         case 1:
             # do stuff
+            revCard = input("Enter revealed cards.")
+            if betFirst: #if true
+                userInput = int(input("Enter opponent's move: 0-2 "))
+                BetDecision()
+                
+            else: #if false 
+                InitBet() 
+                if(userInput == 0):
+                    OppBet(0)
+                elif(userInput == 1): 
+                    OppBet(1)
+                elif(userInput == 2): 
+                    OppBet(2)    
             main()
+            
         case 2:
             # do stuff
             main()
