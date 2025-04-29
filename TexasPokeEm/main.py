@@ -18,13 +18,11 @@ import random
     "For example 4 of hearts is 4h.\n")"""
 
 #global variables that you can change if u want 
-roundNumber = 1
 betFirst = False
-numChips = 100
-currentBet = 0
+numChips = 100 # will need to update this when we call/raise
+currentBet = 0 
 
 def OppBet():
-    global roundNumber #idk i havent done python in forever. 
 
     print("Opponent Bet\n")
     print("0: call\n")
@@ -34,14 +32,18 @@ def OppBet():
     
     if dec == 0: 
         print("Opponent called! Move to next round.")
-        roundNumber+=1
 
     elif dec == 1: 
         print("Opponent raised!")
         user_input = int(input("Enter opponent bet: "))
         print("You entered:", user_input)
+        
+        # checking valid raise amount
         if (user_input > currentBet):
             currentBet = user_input
+            # opponent raised, so we'll need to bet again
+            BetDecision()
+            
         else:
             print("Raise amount was not greater than the current bet. ")
             OppBet()
@@ -89,37 +91,36 @@ def main():
             # who bets first?
             while(1)
             {
-                first = input("Do you bet first? (y/n): ")
-            if (first == "y" || first == "y " || first == "Y" || first == "Y "):
-                betFirst = True
-                InitBet()
-                OppBet()
-                break
-            elif (first == "n" || first == "n " || first == "N" || first == "N "):
-                betFirst = False
-                currentBet = int(input("Enter opponent's initial bet: "))
-                InitBet()
-                break
-            else:
-                print("Invalid response. Try again.\n")
+                print("First Better\n")
+                print("0: me\n")
+                print("1: opponent\n")
+                first = input("Who bets first?: ")
+                match first:
+                    case 0: 
+                        betFirst = True
+                        InitBet()
+                        OppBet()
+                        break
+                    case 1:
+                        betFirst = False
+                        currentBet = int(input("Enter opponent's initial bet: "))
+                        InitBet()
+                        break
+                    case default:
+                        print("Invalid response. Try again.\n")
             }
             main()
             
         case 1:
-            # do stuff
-            revCard = input("Enter revealed cards.")
+            revCard = input("Enter revealed cards: ")
+            # if you bet first, will do so for entire game
             if betFirst: #if true
-                userInput = int(input("Enter opponent's move: 0-2 "))
                 BetDecision()
-                
+                OppBet()
             else: #if false 
-                InitBet() 
-                if(userInput == 0):
-                    OppBet(0)
-                elif(userInput == 1): 
-                    OppBet(1)
-                elif(userInput == 2): 
-                    OppBet(2)    
+                # inputting opponent's moves now happens in OppBet()
+                OppBet()
+                BetDecision()
             main()
             
         case 2:
