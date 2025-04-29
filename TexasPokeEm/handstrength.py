@@ -7,6 +7,9 @@ Notes:
 #https://docs.python.org/3/library/itertools.html
 from itertools import combinations
 
+#https://docs.python.org/3/library/functools.html
+from functools import lru_cache # this is gonna be our memoization 
+
 #dictionary to store hand ranks needed for EHS
 # referenced from: https://www.kaggle.com/datasets/camillahorne/poker-hands?select=ranked_poker_hands.csv
 # ^ they also have all the possible permutations
@@ -48,6 +51,8 @@ suits = ['h', 'd', 'c', 's']  # hearts, diamonds, clubs, spades
 
 deck = [rank + suit for rank in ranks for suit in suits]
 
+#https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_(LRU)
+@lru_cache(maxsize=1600)
 def type_hand(ourHand):
     """ this is a util function that will assign the hand type based on a string of hands.
     For an example, I liked how the dataset linked above, camillahorne's, we about representing cards.
@@ -63,10 +68,13 @@ def type_hand(ourHand):
      
     Suits will always be lowercase for readibility.
 
-    input: ourHand - array of cards
+    input: ourHand - tuple o cards (it maybe going in as a list however we will be converting to tuples)
             card - each card in the array is represented by the two letter scheme above
     return: the rank of the hand
     """
+    # lets make sure we convert to tuples
+    if not isinstance(ourHand, tuple):
+        ourHand = tuple(sorted(ourHand))
     # separate the card ranks & suits
     # Jd 
     # card[0] = J
@@ -143,17 +151,15 @@ def type_hand(ourHand):
     # returning high card as the else
     return 0
 
-def highest_possibleHand(ourCards, tableCards):
+
+def highest_possible_hand(ourCards, tableCards):
     """ Evaluating the best possible hand out of the combinations of allCards """
     # combining hole cards & table cards
     allCards = ourCards + tableCards
     #bestPoss is the best possible rank found
-    bestPoss = 0
+    bestPoss = -1
 
-    # going through all possible combos of hands
-    allCombos = combinations(allCards, 5)
-
-    for com in allCombos:
+    for com in combinations(allCards):
         handRank = type_hand(com) # getting the current card rank
 
         #if the hand rank is better than the current bets possible
@@ -162,9 +168,6 @@ def highest_possibleHand(ourCards, tableCards):
             bestPoss = handRank
     
     return bestPoss
-
-
-
 
 
 def EHS(curr_hs, n_pot,p_pot):
@@ -186,7 +189,7 @@ def EHS(curr_hs, n_pot,p_pot):
 
     return ehs
 
-def hand_strength(ourCards, tableCards, deck): 
+def hand_strength(ourCards, tableCards): 
     """ HS enumerates all possible opponent hand cards and counts the occurrneces where 
     ours is the strongest (+50 of cases where we are tied) 
     
@@ -206,19 +209,23 @@ def hand_strength(ourCards, tableCards, deck):
      (ahead+tied+behind)
     return(handstrength)
     """
-    ahead, behind, tied = 0
+    ahead = behind = tied = 0
 
     #type hand returns the 
-    ourRank = type_hand(ourCards, tableCards)
+    ourRank = type_hand(ourCards)
+
+    ourBestPoss = highest_possible_hand(ourCards, tableCards)
+
+    deckRemains = [cd for cd in deck if cd not in ourCards + tableCards]
 
     # consider all possible 2 card combos for our opponent
     # memoization will FOR SURE be needed lmao unless we use the kaggle dataset
     for opp in combinations(deck, 2):
-        oppRank = type_hand(opp)
+        oppBestRank = highest_possible_hand(opp, tableCards)
 
-        if(ourRank>oppRank):
+        if(ourRank>oppBestRank):
             ahead += 1
-        elif(ourRank == oppRank):
+        elif(ourRank == oppBestRank):
             tied += 1
         else:
             behind +=1
@@ -276,7 +283,7 @@ def hand_potential(ourCards, tableCards):
             curr = 0
         
         # time to find all possible combos of the table cards (board cards in paper) to come
-        futureCards = [cd in cd in deckRemains if card not in opp]
+        futureCards = [cd for cd in deckRemains if cd not in opp]
 
         for fu in combinations(futureCards, 5 - len(tableCards)):
             futureBoard = tableCards + list(fu)
@@ -310,4 +317,6 @@ def hand_potential(ourCards, tableCards):
     # n pt we were ahead but fell behind
     # From paper once more: 
     n_pot = (hp[2][0] + hp[2][1]/2 + hp[1][0]/2) / (total_ahead+total_tied)
+
+    return (p_pot, n_pot)
 
