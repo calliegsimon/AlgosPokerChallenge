@@ -51,6 +51,7 @@ suits = ['h', 'd', 'c', 's']  # hearts, diamonds, clubs, spades
 
 deck = [rank + suit for rank in ranks for suit in suits]
 
+
 #https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_(LRU)
 @lru_cache(maxsize=1600)
 def type_hand(ourHand):
@@ -151,16 +152,31 @@ def type_hand(ourHand):
     # returning high card as the else
     return 0
 
-
 def highest_possible_hand(ourCards, tableCards):
     """ Evaluating the best possible hand out of the combinations of allCards """
-    # combining hole cards & table cards
-    allCards = ourCards + tableCards
-    #bestPoss is the best possible rank found
-    bestPoss = -1
 
-    for com in combinations(allCards):
-        handRank = type_hand(com) # getting the current card rank
+    # combining hole cards & table cards
+    if isinstance(ourCards, tuple):
+        ourCards = list(ourCards) # this is to fix type issues really quick
+    allCards = ourCards + tableCards
+    #allCards = ourCards
+    #allCards.append(tableCards)
+    #allCardsTup = tuple(sorted(allCards))
+    #bestPoss is the best possible rank found
+    bestPoss = 0
+
+    # handling our pre-flop phase here (ie. no table cards)
+    if len(allCards) < 5:
+        return(type_hand(tuple(sorted(allCards))))
+    
+    # handling if we have 5 cards
+    if len(allCards) == 5:
+        return(type_hand(tuple(sorted(allCards))))
+    
+    # now here we do are combos for
+    for com in combinations(allCards, 5):
+        newHand = tuple(sorted(com))
+        handRank = type_hand(newHand) # getting the current card rank
 
         #if the hand rank is better than the current bets possible
         # update
@@ -211,26 +227,30 @@ def hand_strength(ourCards, tableCards):
     """
     ahead = behind = tied = 0
 
-    #type hand returns the 
-    ourRank = type_hand(ourCards)
-
-    ourBestPoss = highest_possible_hand(ourCards, tableCards)
+    ourBestRank = highest_possible_hand(ourCards, tableCards)
 
     deckRemains = [cd for cd in deck if cd not in ourCards + tableCards]
 
     # consider all possible 2 card combos for our opponent
     # memoization will FOR SURE be needed lmao unless we use the kaggle dataset
-    for opp in combinations(deck, 2):
+    for opp in combinations(deckRemains, 2):
         oppBestRank = highest_possible_hand(opp, tableCards)
 
-        if(ourRank>oppBestRank):
+        if(ourBestRank > oppBestRank):
             ahead += 1
-        elif(ourRank == oppBestRank):
+        elif(ourBestRank == oppBestRank):
             tied += 1
         else:
             behind +=1
     
-    handstrength = (ahead+tied / 2) / (ahead+tied+behind)
+    # total # of hands evaluated
+    tot = ahead+behind+tied
+
+    if tot == 0:
+        return 0
+
+    #handstrength calc here
+    handstrength = (ahead+tied / 2) / tot
 
     return handstrength
     
@@ -260,36 +280,53 @@ def hand_potential(ourCards, tableCards):
        (i'm including notes cause if i didn't i honestly would forget how it works later)
        """
 
+    # if we already have 5 cards make sure we skip this portion
+    if len(tableCards) >= 5:
+        return (0,0)
+    
+    #hand potential arrays
     hp = [
         [0,0,0], # this would be curr: ahead
         [0,0,0], # this would be curr: tied
         [0,0,0], # this would be curr: behind
     ]
 
-    # reminder type hand is just ranking our hands
-    ourRank = type_hand(ourCards, tableCards)
+    total_hp = [0,0,0] # these are our totals for each current state
+
+    # gonna do our ranks here along with our hand
+    ourHand = tuple(sorted(ourCards + tableCards))
+    ourRank = type_hand(ourHand)
 
     # remaining card excluding our hole cards and known table cards
     deckRemains = [cd for cd in deck if cd not in ourCards + tableCards]
     #consider all possible two card combos of the remaining cards for the opponent
     for opp in combinations(deckRemains, 2):
-        oppRank = type_hand(list(opp), tableCards)
-
+        # lets go ahead and get our current hand ranks 
+        # converting to a tuple for our type_hand portion
+        oppHand = tuple(sorted(opp + tableCards))
+        oppRank = type_hand(oppHand)
+        
         if ourRank > oppRank:
-            curr = 2 # setting us to ahead
+            currState = 2 # setting us to ahead
         elif ourRank == oppRank:
-            curr = 1 # setting us to tied
+            currState = 1 # setting us to tied
         else:
-            curr = 0
+            currState = 0
         
         # time to find all possible combos of the table cards (board cards in paper) to come
         futureCards = [cd for cd in deckRemains if cd not in opp]
 
+        # all possible combinations of future cards based on remaining cards
         for fu in combinations(futureCards, 5 - len(tableCards)):
             futureBoard = tableCards + list(fu)
 
-            ourFutRank = type_hand(ourCards, futureBoard)
-            oppFutRank = type_hand(list(opp), futureBoard)
+            # future cards here
+            ourFutHand = tuple(sorted(ourCards + futureBoard))
+            oppFutHand = tuple(sorted(opp + futureBoard))
+
+            # ranking the hands
+            ourFutRank = type_hand(ourFutHand)
+            oppFutRank = type_hand(oppFutHand)
 
             # assigning our possible future states
             if ourFutRank > oppFutRank:
@@ -299,24 +336,26 @@ def hand_potential(ourCards, tableCards):
             else:
                 futureState = 0
 
-            hp[curr][futureState] += 1
+            # updating our hp matrixe
+            hp[currState][futureState] += 1
+            total_hp[currState]  += 1 
 
-    # summing here
-    total_behind = sum(hp[0])
-    total_tied = sum(hp[1])
-    total_ahead = sum(hp[2])
-
-    #totalhp = total_behind + total_tied + total_ahead
     
     # i am gonna have to fix these tomorrow morning i have a gut feeling
     # positive potentioanl ->
     # p_pot were behind but moved ahead
     # From paper:  Ppot = (HP[behind][ahead]+HP[behind][tied]/2 + HP[tied][ahead]/2) / (HPTotal[behind]+HPTotal[tied])
-    p_pot = (hp[0][2] + hp[0][1]/2 + hp[1][2]/2) / (total_behind+total_tied)
+    if ((total_hp[0] + total_hp[1]) > 0):
+        p_pot = (hp[0][2] + hp[0][1]/2 + hp[1][2]/2) / (total_hp[0] + total_hp[1])
+    else:
+        p_pot = 0 
     #negative pot
     # n pt we were ahead but fell behind
-    # From paper once more: 
-    n_pot = (hp[2][0] + hp[2][1]/2 + hp[1][0]/2) / (total_ahead+total_tied)
+    
+    if ((total_hp[2] + total_hp[1]) > 0):
+        n_pot = (hp[2][0] + hp[2][1]/2 + hp[1][0]/2) / (total_hp[2] + total_hp[1])
+    else:
+        n_pot = 0
 
     return (p_pot, n_pot)
 
