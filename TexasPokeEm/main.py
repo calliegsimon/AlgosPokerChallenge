@@ -18,24 +18,41 @@ import random
     "For example 4 of hearts is 4h.\n")"""
 
 #global variables that you can change if u want 
-roundNumber = 1
 betFirst = False
-numChips = 100
+numChips = 100 # will need to update this when we call/raise
+currentBet = 0 
+# round number doesnt matter because the menu option entered does this for us
 
-def OppBet(dec):
-    global roundNumber #idk i havent done python in forever. 
+def OppBet():
 
+    print("Opponent Bet\n")
+    print("0: call\n")
+    print("1: raise\n")
+    print("2: fold\n")
+    dec = int(input("How did your opponent bet? "))
+    
     if dec == 0: 
-        print("opponent called! move to next round.")
-        roundNumber+=1
+        print("Opponent called! Move to next round.")
+        # reset currentBet for next round
+        currentBet = 0
 
     elif dec == 1: 
-        print("opponent raised!")
+        print("Opponent raised!")
         user_input = int(input("Enter opponent bet: "))
         print("You entered:", user_input)
+        
+        # checking valid raise amount
+        if (user_input > currentBet):
+            currentBet = user_input
+            # opponent raised, so we'll need to bet again
+            BetDecision()
+            
+        else:
+            print("Raise amount was not greater than the current bet. ")
+            OppBet()
 
     elif dec == 2: 
-        print("opponent folded, you win!")
+        print("Opponent folded, you win!")
         sys.exit()
 
 def BetDecision(): 
@@ -46,9 +63,12 @@ def InitBet():
     """ function that will tell us how much our bet should be at the beginning of each betting round """
     if(betFirst == True): 
         """ always bet 1 when we bet first """
+        currentBet = 1
+        numChips = numChips - currentBet
         print("Bet 1 chip\n")
     else:
         """ always call when opponent bets first """
+        numChips = numChips - currentBet
         print("Call\n")
 
 
@@ -71,10 +91,40 @@ def main():
             # get number of chips from user
             numChips = int(input("Enter the number of chips you have to start this round: "))
             # get cards from user
+
+            # who bets first?
+            while 1:
+                print("First Better\n")
+                print("0: me\n")
+                print("1: opponent\n")
+                first = int(input("Who bets first?: "))
+                match first:
+                    case 0: 
+                        betFirst = True
+                        InitBet()
+                        OppBet()
+                        break
+                    case 1:
+                        betFirst = False
+                        currentBet = int(input("Enter opponent's initial bet: "))
+                        InitBet()
+                        break
+                    case default:
+                        print("Invalid response. Try again.\n")
             main()
+            
         case 1:
-            # do stuff
+            revCard = input("Enter revealed cards: ")
+            # if you bet first, will do so for entire game
+            if betFirst: #if true
+                BetDecision()
+                OppBet()
+            else: #if false 
+                # inputting opponent's moves now happens in OppBet()
+                OppBet()
+                BetDecision()
             main()
+            
         case 2:
             # do stuff
             main()
