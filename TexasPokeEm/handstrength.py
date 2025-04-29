@@ -158,6 +158,7 @@ def highest_possible_hand(ourCards, tableCards):
     # combining hole cards & table cards
     if isinstance(ourCards, tuple):
         ourCards = list(ourCards) # this is to fix type issues really quick
+    
     allCards = ourCards + tableCards
     #allCards = ourCards
     #allCards.append(tableCards)
@@ -294,8 +295,12 @@ def hand_potential(ourCards, tableCards):
     total_hp = [0,0,0] # these are our totals for each current state
 
     # gonna do our ranks here along with our hand
-    ourHand = tuple(sorted(ourCards + tableCards))
-    ourRank = type_hand(ourHand)
+    # combining hole cards & table cards
+    if isinstance(ourCards, tuple):
+        ourCards = list(ourCards) # this is to fix type issues really quick
+    
+    ourHand = ourCards + tableCards
+    ourRank = type_hand(tuple(sorted(ourHand)))
 
     # remaining card excluding our hole cards and known table cards
     deckRemains = [cd for cd in deck if cd not in ourCards + tableCards]
@@ -303,8 +308,12 @@ def hand_potential(ourCards, tableCards):
     for opp in combinations(deckRemains, 2):
         # lets go ahead and get our current hand ranks 
         # converting to a tuple for our type_hand portion
-        oppHand = tuple(sorted(opp + tableCards))
-        oppRank = type_hand(oppHand)
+        if isinstance(opp, tuple):
+            opp = list(opp) # this is to fix type issues really quick
+        
+        oppHand =  opp + tableCards
+        newOpp = tuple(sorted(oppHand))
+        oppRank = type_hand(newOpp)
         
         if ourRank > oppRank:
             currState = 2 # setting us to ahead
@@ -321,12 +330,12 @@ def hand_potential(ourCards, tableCards):
             futureBoard = tableCards + list(fu)
 
             # future cards here
-            ourFutHand = tuple(sorted(ourCards + futureBoard))
-            oppFutHand = tuple(sorted(opp + futureBoard))
+            ourFutHand = ourCards + futureBoard
+            oppFutHand = opp + futureBoard
 
             # ranking the hands
-            ourFutRank = type_hand(ourFutHand)
-            oppFutRank = type_hand(oppFutHand)
+            ourFutRank = type_hand(tuple(sorted(ourFutHand)))
+            oppFutRank = type_hand(tuple(sorted(oppFutHand)))
 
             # assigning our possible future states
             if ourFutRank > oppFutRank:
