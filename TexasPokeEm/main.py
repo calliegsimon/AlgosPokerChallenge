@@ -21,6 +21,7 @@ import random
 betFirst = False
 numChips = 100 # will need to update this when we call/raise
 currentBet = 0 
+# round number doesnt matter because the menu option entered does this for us
 
 def OppBet():
 
@@ -32,6 +33,8 @@ def OppBet():
     
     if dec == 0: 
         print("Opponent called! Move to next round.")
+        # reset currentBet for next round
+        currentBet = 0
 
     elif dec == 1: 
         print("Opponent raised!")
@@ -65,6 +68,7 @@ def InitBet():
         print("Bet 1 chip\n")
     else:
         """ always call when opponent bets first """
+        numChips = numChips - currentBet
         print("Call\n")
 
 
@@ -89,12 +93,11 @@ def main():
             # get cards from user
 
             # who bets first?
-            while(1)
-            {
+            while 1:
                 print("First Better\n")
                 print("0: me\n")
                 print("1: opponent\n")
-                first = input("Who bets first?: ")
+                first = int(input("Who bets first?: "))
                 match first:
                     case 0: 
                         betFirst = True
@@ -108,7 +111,6 @@ def main():
                         break
                     case default:
                         print("Invalid response. Try again.\n")
-            }
             main()
             
         case 1:
