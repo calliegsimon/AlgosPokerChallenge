@@ -21,21 +21,33 @@ import random
 roundNumber = 1
 betFirst = False
 numChips = 100
+currentBet = 0
 
-def OppBet(dec):
+def OppBet():
     global roundNumber #idk i havent done python in forever. 
 
+    print("Opponent Bet\n")
+    print("0: call\n")
+    print("1: raise\n")
+    print("2: fold\n")
+    dec = int(input("How did your opponent bet? "))
+    
     if dec == 0: 
-        print("opponent called! move to next round.")
+        print("Opponent called! Move to next round.")
         roundNumber+=1
 
     elif dec == 1: 
-        print("opponent raised!")
+        print("Opponent raised!")
         user_input = int(input("Enter opponent bet: "))
         print("You entered:", user_input)
+        if (user_input > currentBet):
+            currentBet = user_input
+        else:
+            print("Raise amount was not greater than the current bet. ")
+            OppBet()
 
     elif dec == 2: 
-        print("opponent folded, you win!")
+        print("Opponent folded, you win!")
         sys.exit()
 
 def BetDecision(): 
@@ -46,6 +58,8 @@ def InitBet():
     """ function that will tell us how much our bet should be at the beginning of each betting round """
     if(betFirst == True): 
         """ always bet 1 when we bet first """
+        currentBet = 1
+        numChips = numChips - currentBet
         print("Bet 1 chip\n")
     else:
         """ always call when opponent bets first """
@@ -71,6 +85,24 @@ def main():
             # get number of chips from user
             numChips = int(input("Enter the number of chips you have to start this round: "))
             # get cards from user
+
+            # who bets first?
+            while(1)
+            {
+                first = input("Do you bet first? (y/n): ")
+            if (first == "y" || first == "y " || first == "Y" || first == "Y "):
+                betFirst = True
+                InitBet()
+                OppBet()
+                break
+            elif (first == "n" || first == "n " || first == "N" || first == "N "):
+                betFirst = False
+                currentBet = int(input("Enter opponent's initial bet: "))
+                InitBet()
+                break
+            else:
+                print("Invalid response. Try again.\n")
+            }
             main()
         case 1:
             # do stuff
