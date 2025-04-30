@@ -158,6 +158,8 @@ def highest_possible_hand(ourCards, tableCards):
     # combining hole cards & table cards
     if isinstance(ourCards, tuple):
         ourCards = list(ourCards) # this is to fix type issues really quick
+    if isinstance(tableCards, tuple):
+        tableCards = list(tableCards) # this is to fix type issues really quick
     
     allCards = ourCards + tableCards
     #allCards = ourCards
@@ -298,6 +300,8 @@ def hand_potential(ourCards, tableCards):
     # combining hole cards & table cards
     if isinstance(ourCards, tuple):
         ourCards = list(ourCards) # this is to fix type issues really quick
+    if isinstance(tableCards, tuple):
+        tableCards = list(tableCards) # this is to fix type issues really quick
     
     ourHand = ourCards + tableCards
     ourRank = type_hand(tuple(sorted(ourHand)))
