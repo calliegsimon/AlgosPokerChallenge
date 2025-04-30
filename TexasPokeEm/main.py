@@ -311,6 +311,7 @@ def InitBet():
             numChips = numChips - currentBet
             print("RAISE bet to 1 chip\n")
             print("You should have", numChips, "chips remaining.\n")
+            OppBet()
 
         else:
             currentBet = opponentBet
