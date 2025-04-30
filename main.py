@@ -22,10 +22,11 @@ betFirst = False
 numChips = 100 # will need to update this when we call/raise
 oppChips = 100
 currentBet = 0 
+holeCards = ""
 # round number doesnt matter because the menu option entered does this for us
 
 def OppBet():
-
+    global currentBet
     print("Opponent Bet\n")
     print("0: call\n")
     print("1: raise\n")
@@ -57,6 +58,8 @@ def OppBet():
         sys.exit()
 
 def BetDecision(): 
+    global currentBet, numChips
+
     """check for initial bet, do not run"""
     if(betFirst == True): 
         print("stuff")
@@ -69,7 +72,6 @@ def BetDecision():
     print("2: fold\n")
 
     userBet = int(input("enter what you want to do."))
-    print("You decided to:", userBet)
 
     if userBet == 0: 
         print("you called! the current bet is .. ", currentBet)
@@ -85,6 +87,7 @@ def BetDecision():
             #raise 
         elif A == 2: 
             print("fold")
+            sys.exit()
             #fold 
     elif userBet == 2: 
         print("folded, end round")
@@ -92,6 +95,7 @@ def BetDecision():
         #end round, chips go to opponent (?)
 
 def InitBet(): 
+    global numChips, currentBet, betFirst
     """ function that will tell us how much our bet should be at the beginning of each betting round """
     if(betFirst == True): 
         """ always bet 1 when we bet first """
@@ -104,6 +108,8 @@ def InitBet():
         print("Call\n")
 
 def main(): 
+    global numChips, holeCards, betFirst, currentBet, flopCards, riverCards, turnCards
+    
     """ menu logic """
     print("Game Stage Menu\n")
     print("0: Game Start\n")
@@ -112,16 +118,16 @@ def main():
     print("3: The River\n")
     print("4: Game End\n")
     
-    opt_str = input("Enter the number that corresponds to the game stage you are in: ")
-    opt = int(opt_str)
+    opt = int(input("Enter the number that corresponds to the game stage you are in: "))
 
     """ https://www.geeksforgeeks.org/switch-case-in-python-replacement/ """
     match opt:
         case 0:
             # get number of chips from user
-            numChips = int(input("Enter the number of chips you have to start this round: "))
+            numChips = int(input("Enter the number of chips you have to start this game: "))
             # get cards from user
-
+            userCards = input("Enter your cards. Separate cards by comma & space.\n")
+            holeCards = tuple(userCards.split(", "))
             # who bets first?
             while 1:
                 print("First Better\n")
@@ -139,26 +145,43 @@ def main():
                         currentBet = int(input("Enter opponent's initial bet: "))
                         InitBet()
                         break
-                    case default:
+                    case _: #for some reason case default wasnt being accessed by PYLANCE - amy 
                         print("Invalid response. Try again.\n")
             main()
             
         case 1:
-            revCard = input("Enter revealed cards: ")
+            revCard_flop = input("Enter 3 revealed cards. Separate cards by comma & space.\n")
+            flopCards = tuple(revCard_flop.split(", "))
             # if you bet first, will do so for entire game
-            if betFirst: #if true
-                BetDecision()
+            if betFirst: 
+                InitBet()
                 OppBet()
-            else: #if false 
+            else:
                 # inputting opponent's moves now happens in OppBet()
                 OppBet()
                 BetDecision()
             main()
             
         case 2:
+            revCard_turn = input("Enter 1 revealed card. Separate cards by comma & space.\n")
+            turnCards = tuple(revCard_turn.split(", "))
             # do stuff
+            if betFirst:
+                InitBet()
+                OppBet()
+            else:
+                OppBet()
+                BetDecision()
             main()
         case 3:
+            revCard_river = input("Enter FINAL revealed card. Separate cards by comma & space.\n")
+            riverCards = tuple(revCard_river.split(", "))
+            if betFirst: #if true
+                InitBet()
+                OppBet()
+            else:
+                OppBet()
+                BetDecision()
             # do stuff
             main()
         case 4: 
@@ -174,8 +197,9 @@ def main():
             print("- Two Pair\n")
             print("- Pair\n")
             print("- High Card\n")
+            sys.exit()
         case default:
             print("Invalid Menu Option\n")
             main()
-            
-            
+# running program
+main()
