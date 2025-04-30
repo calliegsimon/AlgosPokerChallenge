@@ -10,6 +10,8 @@ from itertools import combinations
 #https://docs.python.org/3/library/functools.html
 from functools import lru_cache # this is gonna be our memoization 
 
+import random
+
 #dictionary to store hand ranks needed for EHS
 # referenced from: https://www.kaggle.com/datasets/camillahorne/poker-hands?select=ranked_poker_hands.csv
 # ^ they also have all the possible permutations
@@ -253,90 +255,65 @@ def hand_strength(ourCards, tableCards):
     return handstrength
     
 
-#@lru_cache(maxsize=1600)
 def hand_potential(ourCards, tableCards):
-    """potential for our hand to improve or deteroiate
-    should return p_pot & n_pot 
-    """
 
-    # hand potential arrays 
-    # Hand potential array, each index repre- */
-    #ents ahead, tied, and behind. */
-    #integer array HP[3][3] /* initialize to 0 */
-    #integer array HPTotal[3] /* initialize to 0 */
+    if not isinstance(ourCards, tuple):
+        ourCards = tuple(sorted(ourCards))
+    else:
+        ourCards = tuple(sorted(ourCards))
 
-    """
-    Some notes on the hp matrice
-        3x3 matrix: [currState][futureState]
-       array indices:
-       0 - behind
-       1 - tied
-       2 - ahead
-       row - hand's current state
-       col - hand's future state
+    if not isinstance(tableCards, tuple):
+        tableCards = tuple(sorted(tableCards))
+    else:
+        tableCards = tuple(sorted(tableCards))
 
-       (i'm including notes cause if i didn't i honestly would forget how it works later)
-       """
-
-    # if we already have 5 cards make sure we skip this portion
     if len(tableCards) >= 5:
-        return (0,0)
-    
-    #hand potential arrays
-    hp = [
-        [0,0,0], # this would be curr: ahead
-        [0,0,0], # this would be curr: tied
-        [0,0,0], # this would be curr: behind
-    ]
+        return (0, 0)
 
-    total_hp = [0,0,0] # these are our totals for each current state
+    hp = [[0, 0, 0],  # from behind
+          [0, 0, 0],  # from tied
+          [0, 0, 0]]  # from ahead
+    total_hp = [0, 0, 0]
 
-    # gonna do our ranks here along with our hand
-    # combining hole cards & table cards
-    if isinstance(ourCards, tuple):
-        ourCards = list(ourCards) # this is to fix type issues really quick
-    if isinstance(tableCards, tuple):
-        tableCards = list(tableCards) # this is to fix type issues really quick
-    
     ourHand = ourCards + tableCards
     ourRank = type_hand(tuple(sorted(ourHand)))
 
-    # remaining card excluding our hole cards and known table cards
+    # Cards not in use
     deckRemains = [cd for cd in deck if cd not in ourCards + tableCards]
-    #consider all possible two card combos of the remaining cards for the opponent
-    for opp in combinations(deckRemains, 2):
-        # lets go ahead and get our current hand ranks 
-        # converting to a tuple for our type_hand portion
-        if isinstance(opp, tuple):
-            opp = list(opp) # this is to fix type issues really quick
-        
-        oppHand =  opp + tableCards
-        newOpp = tuple(sorted(oppHand))
-        oppRank = type_hand(newOpp)
-        
-        if ourRank > oppRank:
-            currState = 2 # setting us to ahead
-        elif ourRank == oppRank:
-            currState = 1 # setting us to tied
-        else:
-            currState = 0
-        
-        # time to find all possible combos of the table cards (board cards in paper) to come
-        futureCards = [cd for cd in deckRemains if cd not in opp]
 
-        # all possible combinations of future cards based on remaining cards
-        for fu in combinations(futureCards, 5 - len(tableCards)):
-            futureBoard = tableCards + list(fu)
+    NUM_SAMPLES = 100  # adjust for more accuracy if needed
 
-            # future cards here
-            ourFutHand = ourCards + futureBoard
-            oppFutHand = opp + futureBoard
+    for _ in range(NUM_SAMPLES):
+        try:
+            # Pick 2 opponent cards
+            opp = tuple(random.sample(deckRemains, 2))
+            futureCards = [cd for cd in deckRemains if cd not in opp]
 
-            # ranking the hands
-            ourFutRank = type_hand(tuple(sorted(ourFutHand)))
-            oppFutRank = type_hand(tuple(sorted(oppFutHand)))
+            # Determine current state
+            oppHandNow = opp + tableCards
+            oppRank = type_hand(tuple(sorted(oppHandNow)))
 
-            # assigning our possible future states
+            if ourRank > oppRank:
+                currState = 2  # ahead
+            elif ourRank == oppRank:
+                currState = 1  # tied
+            else:
+                currState = 0  # behind
+
+            # How many cards are left to deal?
+            needed = 5 - len(tableCards)
+            if needed > len(futureCards):
+                continue  # not enough cards left
+
+            futureBoard = tuple(random.sample(futureCards, needed))
+
+            ourFutHand = tuple(sorted(ourCards + tableCards + futureBoard))
+            oppFutHand = tuple(sorted(opp + tableCards + futureBoard))
+
+            ourFutRank = type_hand(ourFutHand)
+            oppFutRank = type_hand(oppFutHand)
+
+            # Determine future state
             if ourFutRank > oppFutRank:
                 futureState = 2
             elif ourFutRank == oppFutRank:
@@ -344,26 +321,23 @@ def hand_potential(ourCards, tableCards):
             else:
                 futureState = 0
 
-            # updating our hp matrixe
+            # Update matrix
             hp[currState][futureState] += 1
-            total_hp[currState]  += 1 
+            total_hp[currState] += 1
 
-    
-    # i am gonna have to fix these tomorrow morning i have a gut feeling
-    # positive potentioanl ->
-    # p_pot were behind but moved ahead
-    # From paper:  Ppot = (HP[behind][ahead]+HP[behind][tied]/2 + HP[tied][ahead]/2) / (HPTotal[behind]+HPTotal[tied])
-    if ((total_hp[0] + total_hp[1]) > 0):
-        p_pot = (hp[0][2] + hp[0][1]/2 + hp[1][2]/2) / (total_hp[0] + total_hp[1])
+        except ValueError:
+            # Not enough cards to sample (rare edge case)
+            continue
+
+    # Compute p_pot (improve from behind/tied) and n_pot (fall from ahead/tied)
+    if (total_hp[0] + total_hp[1]) > 0:
+        p_pot = (hp[0][2] + hp[0][1] / 2 + hp[1][2] / 2) / (total_hp[0] + total_hp[1])
     else:
-        p_pot = 0 
-    #negative pot
-    # n pt we were ahead but fell behind
-    
-    if ((total_hp[2] + total_hp[1]) > 0):
-        n_pot = (hp[2][0] + hp[2][1]/2 + hp[1][0]/2) / (total_hp[2] + total_hp[1])
+        p_pot = 0
+
+    if (total_hp[2] + total_hp[1]) > 0:
+        n_pot = (hp[2][0] + hp[2][1] / 2 + hp[1][0] / 2) / (total_hp[2] + total_hp[1])
     else:
         n_pot = 0
 
     return p_pot, n_pot
-

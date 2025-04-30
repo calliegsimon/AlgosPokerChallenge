@@ -102,6 +102,8 @@ def BetDecision(rnd, oppRaise):
         case 3:
             tableCards = flopCards + turnCards + riverCards
 
+    tableCards = tuple(tableCards)
+    holeCards = tuple(holeCards)
     # never fold if bestHand >= 3
     bestHand = hs.highest_possible_hand(holeCards, tableCards)
     p_pot, n_pot = hs.hand_potential(holeCards, tableCards)
