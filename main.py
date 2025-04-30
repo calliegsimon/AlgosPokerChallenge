@@ -23,10 +23,17 @@ numChips = 100 # will need to update this when we call/raise
 oppChips = 100
 currentBet = 0 
 holeCards = ""
+flopCards = ""
+turnCards = ""
+riverCards = ""
+rnd = 0 # round number for use in BetDecision()
+bluff = False
 # round number doesnt matter because the menu option entered does this for us
 
 def OppBet():
-    global currentBet
+    # global currentBet - don't need to declare globals in each function
+    #                     since they're all declared at the top of the 
+    #                     file before this function
     print("Opponent Bet\n")
     print("0: call\n")
     print("1: raise\n")
@@ -47,7 +54,7 @@ def OppBet():
         if (user_input > currentBet):
             currentBet = user_input
             # opponent raised, so we'll need to bet again
-            BetDecision()
+            BetDecision(rnd)
             
         else:
             print("Raise amount was not greater than the current bet. ")
@@ -57,45 +64,88 @@ def OppBet():
         print("Opponent folded, you win!")
         sys.exit()
 
-def BetDecision(): 
-    global currentBet, numChips
+def BetDecision(rnd): 
+    # global currentBet, numChips
+    """ function to decide if user should call, bet, or fold
+    - this function should only be called after opponent has bet
+    - InitBet() should be called on first bet of each round & this 
+        function will only be called within OppBet """
+    raiseAmnt = 0
 
-    """check for initial bet, do not run"""
-    if(betFirst == True): 
-        print("stuff")
+    match rnd:
+        case 0:
+            tableCards = []
+        case 1:
+            tableCards = flopCards
+        case 2:
+            tableCards = flopCards + turnCards
+        case 3:
+            tableCards = flopCards + turnCards + riverCards
+    
+    # never fold if bestHand >= 3
+    bestHand = hs.highest_possible_hand(holeCards, tableCards)
+    p_pot, n_pot = hs.hand_potential(holeCards, tableCards)
+    current_hs = hs.hand_strength(holeCards, tableCards)
+    ehs = hs.EHS(current_hs, n_pot, p_pot) # on last round p_pot & n_pot = 0, so ehs = current_hs
 
+    # generate random number to see if we should bluff
+    # if we're already bluffing, continue to do so for rest of game
+    if (bluff == False):
+        # start bluffing?
+        result = random.randint(1,10)
+        # bluff if result == 5 or 10 (will bluff about 20% of the time)
+        if (result == 5 or result == 10):
+            bluff == True
+    
 
-    #AFTER decision made -- AMY 
-    print("Your Bet Options.. \n")
-    print("0: call\n")
-    print("1: raise\n")
-    print("2: fold\n")
+    # decision if we are bluffing
+    if (bluff == True):
+        # when bluffing won't fold & lower threshold for raising
+        if (ehs > 0.2):
+            # raise
+            userBet = 1
 
-    userBet = int(input("enter what you want to do."))
+            # calculate how much to raise
+        else:
+            # call
+            userBet = 0
+    # decision if we are not bluffing
+    else:
+        # decision purely based off calculations
+        if (ehs > 0.3):
+            # raise
+            userBet = 1
+
+            # calculate how much to raise
+        elif (ehs > 0.1):
+            # call
+            userBet = 0
+        else:
+            # fold if we don't have strong hand
+            if (bestHand < 3):
+                userBet = 2
+            else:
+                # if we should fold by calculations, but we have a good hand, just call
+                userBet = 0
 
     if userBet == 0: 
-        print("you called! the current bet is .. ", currentBet)
-        #move to next round 
+        print("You should CALL. Match the current bet of ", currentBet, ".\n")
+        numChips = numChips - currentBet
+        print("You should have ", numChips, " chips remaining.\n")
+        currentBet = 0
+        #move to next round
     elif userBet == 1: 
-        newBet = int(input("what are you raising to?"))
-        OppBet(A)
-        if A == 0: 
-            print("call")
-            #call 
-        elif A == 1:
-            print("raise") 
-            #raise 
-        elif A == 2: 
-            print("fold")
-            sys.exit()
-            #fold 
+        print("You should RAISE bet to ", raiseAmnt, " chips.\n")
+        numChips = numChips - currentBet
+        print("You should have ", numChips, " chips remaining.\n")
+        OppBet()
     elif userBet == 2: 
-        print("folded, end round")
+        print("You should FOLD. Sorry, you lose!\n")
         sys.exit()
         #end round, chips go to opponent (?)
 
 def InitBet(): 
-    global numChips, currentBet, betFirst
+    # global numChips, currentBet, betFirst
     """ function that will tell us how much our bet should be at the beginning of each betting round """
     if(betFirst == True): 
         """ always bet 1 when we bet first """
@@ -108,7 +158,7 @@ def InitBet():
         print("Call\n")
 
 def main(): 
-    global numChips, holeCards, betFirst, currentBet, flopCards, riverCards, turnCards
+    # global numChips, holeCards, betFirst, currentBet, flopCards, riverCards, turnCards
     
     """ menu logic """
     print("Game Stage Menu\n")
@@ -123,6 +173,7 @@ def main():
     """ https://www.geeksforgeeks.org/switch-case-in-python-replacement/ """
     match opt:
         case 0:
+            rnd = 0
             # get number of chips from user
             numChips = int(input("Enter the number of chips you have to start this game: "))
             # get cards from user
@@ -150,6 +201,7 @@ def main():
             main()
             
         case 1:
+            rnd = 1
             revCard_flop = input("Enter 3 revealed cards. Separate cards by comma & space.\n")
             flopCards = tuple(revCard_flop.split(", "))
             # if you bet first, will do so for entire game
@@ -159,10 +211,11 @@ def main():
             else:
                 # inputting opponent's moves now happens in OppBet()
                 OppBet()
-                BetDecision()
+                BetDecision(rnd)
             main()
             
         case 2:
+            rnd = 2
             revCard_turn = input("Enter 1 revealed card. Separate cards by comma & space.\n")
             turnCards = tuple(revCard_turn.split(", "))
             # do stuff
@@ -171,9 +224,10 @@ def main():
                 OppBet()
             else:
                 OppBet()
-                BetDecision()
+                BetDecision(rnd)
             main()
         case 3:
+            rnd = 3
             revCard_river = input("Enter FINAL revealed card. Separate cards by comma & space.\n")
             riverCards = tuple(revCard_river.split(", "))
             if betFirst: #if true
@@ -181,10 +235,11 @@ def main():
                 OppBet()
             else:
                 OppBet()
-                BetDecision()
+                BetDecision(rnd)
             # do stuff
             main()
         case 4: 
+            rnd = 4
             print("No one folded. Time for everyone to reveal their hands.\n")
             print("Ranking of hands from best to worst:\n")
             print("- Royal Flush\n")
