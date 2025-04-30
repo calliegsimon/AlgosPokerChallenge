@@ -253,7 +253,7 @@ def hand_strength(ourCards, tableCards):
     return handstrength
     
 
-@lru_cache(maxsize=1600)
+#@lru_cache(maxsize=1600)
 def hand_potential(ourCards, tableCards):
     """potential for our hand to improve or deteroiate
     should return p_pot & n_pot 
