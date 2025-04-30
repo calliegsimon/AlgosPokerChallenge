@@ -108,12 +108,7 @@ def type_hand(ourHand):
     if sortedCardRanks == [14, 5, 4, 3, 2]:
         straight = True
     else:
-        # iterate 
-        for i in range(len(sortedCardRanks) - 1):
-            if sortedCardRanks[i] - sortedCardRanks[i+1] != 1:
-                break
-        else:
-            straight = True
+        straight = (max(sortedCardRanks) - min(sortedCardRanks) == 4 and len(set(sortedCardRanks)) == 5)
 
     # checking for royal flush
     if flush and straight and max(sortedCardRanks) == 14:
