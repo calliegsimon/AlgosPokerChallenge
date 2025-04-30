@@ -1,3 +1,10 @@
+""" Algorithms Texas Hold'em Program
+Group Members
+- Callie Simon
+- Abby Wenger
+- Amy Nguyen
+"""
+
 """ The main menu system for how we can navigate what we need our algorithm to do
 - Switch (match) case to """
 
@@ -166,7 +173,7 @@ def BetDecision(rnd, oppRaise):
                         # call instead
                         userBet = 0
                         # opponent raised, so I only need to add the difference between my last bet and theirs
-                        myBet = currentBet - additionalBet
+                        myBet = additionalBet
                 else:
                     if (numChips > 1.25*currentBet):
                         currentBet = math.floor(1.25*currentBet)
@@ -205,7 +212,7 @@ def BetDecision(rnd, oppRaise):
                         # call instead
                         userBet = 0
                         # opponent raised, so I only need to add the difference between my last bet and theirs
-                        myBet = currentBet - additionalBet
+                        myBet = additionalBet
                 else:
                     if (numChips > math.floor(2*currentBet)):
                         currentBet = math.floor(2*currentBet)
