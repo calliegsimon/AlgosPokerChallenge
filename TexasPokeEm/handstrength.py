@@ -365,5 +365,5 @@ def hand_potential(ourCards, tableCards):
     else:
         n_pot = 0
 
-    return (p_pot, n_pot)
+    return p_pot, n_pot
 
