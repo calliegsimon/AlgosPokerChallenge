@@ -278,18 +278,18 @@ def hand_potential(ourCards, tableCards):
     ourHand = ourCards + tableCards
     ourRank = type_hand(tuple(sorted(ourHand)))
 
-    # Cards not in use
+    # what remaing of our deck
     deckRemains = [cd for cd in deck if cd not in ourCards + tableCards]
 
     NUM_SAMPLES = 100  # adjust for more accuracy if needed
 
     for _ in range(NUM_SAMPLES):
         try:
-            # Pick 2 opponent cards
+            # choosing two cards for our opp
             opp = tuple(random.sample(deckRemains, 2))
             futureCards = [cd for cd in deckRemains if cd not in opp]
 
-            # Determine current state
+            # curr opp hand
             oppHandNow = opp + tableCards
             oppRank = type_hand(tuple(sorted(oppHandNow)))
 
@@ -300,7 +300,7 @@ def hand_potential(ourCards, tableCards):
             else:
                 currState = 0  # behind
 
-            # How many cards are left to deal?
+            # how many cards are left to deal?
             needed = 5 - len(tableCards)
             if needed > len(futureCards):
                 continue  # not enough cards left
@@ -313,7 +313,7 @@ def hand_potential(ourCards, tableCards):
             ourFutRank = type_hand(ourFutHand)
             oppFutRank = type_hand(oppFutHand)
 
-            # Determine future state
+            # our future state
             if ourFutRank > oppFutRank:
                 futureState = 2
             elif ourFutRank == oppFutRank:
@@ -325,11 +325,10 @@ def hand_potential(ourCards, tableCards):
             hp[currState][futureState] += 1
             total_hp[currState] += 1
 
-        except ValueError:
-            # Not enough cards to sample (rare edge case)
+        except ValueError: # no more card 
             continue
 
-    # Compute p_pot (improve from behind/tied) and n_pot (fall from ahead/tied)
+    # p_pot & n_pot
     if (total_hp[0] + total_hp[1]) > 0:
         p_pot = (hp[0][2] + hp[0][1] / 2 + hp[1][2] / 2) / (total_hp[0] + total_hp[1])
     else:
