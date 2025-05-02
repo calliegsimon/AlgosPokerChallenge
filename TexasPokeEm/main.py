@@ -37,7 +37,6 @@ turnCards = ""
 riverCards = ""
 rnd = 0 # round number for use in BetDecision()
 bluff = False
-# round number doesnt matter because the menu option entered does this for us
 
 def Bluff():
     """ function to determine if we should bluff this game 
